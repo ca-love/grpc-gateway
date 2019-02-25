@@ -41,7 +41,7 @@ def _run_proto_gen_swagger(ctx, direct_proto_srcs, transitive_proto_srcs, action
         inputs = direct_proto_srcs + transitive_proto_srcs
         tools = [protoc_gen_swagger]
 
-        options = ["logtostderr=true", "allow_repeated_fields_in_body=true"]
+        options = ["logtostderr=true", "allow_repeated_fields_in_body=true", "json_names_for_fields=true", "allow_merge=true"]
         if grpc_api_configuration:
             options.append("grpc_api_configuration=%s" % grpc_api_configuration.path)
             inputs.append(grpc_api_configuration)
