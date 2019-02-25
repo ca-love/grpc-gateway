@@ -37,32 +37,31 @@ def _run_proto_gen_swagger(ctx, direct_proto_srcs, transitive_proto_srcs, action
             "%s.swagger.json" % proto.basename[:-len(".proto")],
             sibling = proto,
         )
-
-        inputs = direct_proto_srcs + transitive_proto_srcs
-        tools = [protoc_gen_swagger]
-
-        options = ["logtostderr=true", "allow_repeated_fields_in_body=true", "json_names_for_fields=true", "allow_merge=true"]
-        if grpc_api_configuration:
-            options.append("grpc_api_configuration=%s" % grpc_api_configuration.path)
-            inputs.append(grpc_api_configuration)
-
-        includes = _collect_includes(ctx.genfiles_dir.path, direct_proto_srcs + transitive_proto_srcs)
-
-        args = actions.args()
-        args.add("--plugin=%s" % protoc_gen_swagger.path)
-        args.add("--swagger_out=%s:%s" % (",".join(options), ctx.bin_dir.path))
-        args.add_all(["-I%s" % include for include in includes])
-        args.add(proto.path)
-
-        actions.run(
-            executable = protoc,
-            inputs = inputs,
-            tools = tools,
-            outputs = [swagger_file],
-            arguments = [args],
-        )
-
         swagger_files.append(swagger_file)
+
+    inputs = direct_proto_srcs + transitive_proto_srcs
+    tools = [protoc_gen_swagger]
+
+    options = ["logtostderr=true", "allow_repeated_fields_in_body=true", "json_names_for_fields=true"]
+    if grpc_api_configuration:
+        options.append("grpc_api_configuration=%s" % grpc_api_configuration.path)
+        inputs.append(grpc_api_configuration)
+
+    includes = _collect_includes(ctx.genfiles_dir.path, direct_proto_srcs + transitive_proto_srcs)
+
+    args = actions.args()
+    args.add("--plugin=%s" % protoc_gen_swagger.path)
+    args.add("--swagger_out=%s:%s" % (",".join(options), ctx.bin_dir.path))
+    args.add_all(["-I%s" % include for include in includes])
+    args.add(proto.path)
+
+    actions.run(
+        executable = protoc,
+        inputs = inputs,
+        tools = tools,
+        outputs = [swagger_file],
+        arguments = [args],
+    )
 
     return swagger_files
 
@@ -91,6 +90,7 @@ protoc_gen_swagger = rule(
             mandatory = True,
             providers = ["proto"],
         ),
+        "options": attr.string_list(),
         "grpc_api_configuration": attr.label(
             allow_single_file = True,
             mandatory = False,
