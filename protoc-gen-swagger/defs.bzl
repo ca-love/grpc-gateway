@@ -59,7 +59,7 @@ def _run_proto_gen_swagger(ctx, direct_proto_srcs, transitive_proto_srcs, action
         executable = protoc,
         inputs = inputs,
         tools = tools,
-        outputs = [swagger_file],
+        outputs = swagger_files,
         arguments = [args],
     )
 
